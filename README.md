@@ -3,8 +3,6 @@
 **iPhone X Agent** is an automated workflow that bridges your iPhone, Discord, and Google Drive using AI.
 Simply copy the text of an X (Twitter) post on your iPhone, run the iOS Shortcut, and this agent will automatically generate a detailed explanation using **Gemini 2.5 Flash Lite**, save it to Google Drive, and notify you when it's done.
 
-*(Formerly known as X Bookmark Summarizer)*
-
 ## Overview
 
 Instead of manually taking notes on interesting X posts, this system allows you to:
@@ -15,7 +13,7 @@ Instead of manually taking notes on interesting X posts, this system allows you 
 5.  **Notify**: You get a notification back in Discord with the link to the file.
 
 ## demo
-<!-- Failed to upload "x_generate_en.mp4" -->
+[<!-- Failed to upload "x_generate_en.mp4" -->](https://github.com/user-attachments/assets/5e555841-d242-4fdd-a787-f3f397974848)
 
 ---
 
@@ -72,10 +70,6 @@ The system operates as a periodic Lambda function with the following pipeline:
 | `DISCORD_WEBHOOK_URL` | Webhook URL for **notifications** (Output). |
 | `GEMINI_API_KEY` | Google Gemini API Key. |
 | `GOOGLE_SERVICE_ACCOUNT_FILE` | Path to `credentials.json`. |
-
-### 3. Build & Deploy
-*   **Build**: See [docs/build_manual.md](docs/build_manual.md)
-*   **Deploy**: See [aws_deployment_guide.md](aws_deployment_guide.md)
 
 ---
 
