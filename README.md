@@ -14,6 +14,9 @@ Instead of manually taking notes on interesting X posts, this system allows you 
 4.  **Archive**: The explanation is saved as a Markdown file in Google Drive (organized by year).
 5.  **Notify**: You get a notification back in Discord with the link to the file.
 
+## demo
+<!-- Failed to upload "x_generate_en.mp4" -->
+
 ---
 
 ## iPhone Shortcut Setup
