@@ -11,7 +11,7 @@ class Node3_Gemini:
     def __init__(self) -> None:
         """Initializes the Gemini model."""
         self.client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-        self.model_name = 'gemini-2.5-flash-lite'
+        self.model_name = 'gemini-2.5-flash'
         
     def generate_summary(self, structured_data: Dict[str, Any]) -> str:
         """
