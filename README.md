@@ -8,7 +8,7 @@ Simply copy the text of an X (Twitter) post on your iPhone, run the iOS Shortcut
 Instead of manually taking notes on interesting X posts, this system allows you to:
 1.  **Capture**: Use an iOS Shortcut to send the post text to a Discord channel.
 2.  **Process**: The agent (running on AWS Lambda) picks up the text every 3 minutes.
-3.  **Explain**: **Gemini 2.5 Flash Lite** analyzes the content and generates a professional explanation/summary.
+3.  **Explain**: **Gemini 2.5 Flash** analyzes the content and generates a professional explanation/summary.
 4.  **Archive**: The explanation is saved as a Markdown file in Google Drive (organized by year).
 5.  **Notify**: You get a notification back in Discord with the link to the file.
 
