@@ -1,0 +1,30 @@
+# Environment Variables
+.env
+.env.local
+
+# Google Credentials
+service_account.json
+credentials.json
+client_secret.json
+token.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Logs
+*.log
+
+# Deployment Packages
+*.zip
+package/
