@@ -1,109 +1,109 @@
-# X Bookmark Summarizer - ビルド＆デプロイマニュアル
+# X Bookmark Summarizer - Build & Deployment Manual
 
-このドキュメントでは、本プロジェクト（X Bookmark Summarizer）をAWS Lambdaへデプロイするためのビルド手順を体系的にまとめます。
+This document provides a structured set of build steps for deploying this project (X Bookmark Summarizer) to AWS Lambda.
 
-## 前提条件
+## Prerequisites
 
-*   **Docker** がインストールされ、起動していること。
-*   ターミナル（Mac/Linux）での操作が可能であること。
-*   プロジェクトルートディレクトリにいること。
-
----
-
-## 1. ビルドの仕組み（概要）
-
-AWS Lambda（Pythonランタイム）では、使用する外部ライブラリ（`requirements.txt` に記載されたもの）をソースコードと一緒にZIPファイルに含めてアップロードする必要があります。
-
-しかし、一部のライブラリ（`google-genai` や `discord.py` など）はOS依存のバイナリを含む場合があるため、MacOS上で単純に `pip install` したものをアップロードしても、Lambda（Linux環境）では動作しないことがあります。
-
-そのため、**Dockerを使用してAmazon Linux互換の環境内でライブラリをインストールし、それをパッケージングする** 手法を採用しています。
+- **Docker** is installed and running.  
+- You can operate a terminal (Mac/Linux).  
+- You are in the project root directory.
 
 ---
 
-## 2. ビルド手順（コマンド）
+## 1. How the build works (Overview)
 
-以下のコマンドブロックをターミナルにコピー＆ペーストして実行することで、自動的に最新のZIPファイルが生成されます。
-※実行するたびにバージョン番号（ファイル名の末尾）を変えることを推奨します。
+With AWS Lambda (Python runtime), you need to upload a ZIP file that includes both your source code and any external libraries listed in `requirements.txt`.
 
-```bash
-# === 設定: 出力ファイル名（必要に応じて変更してください） ===
+However, some libraries (such as `google-genai` and `discord.py`) may include OS-dependent binaries. If you simply run `pip install` on macOS and upload the result, it may not work on Lambda (Linux).
+
+To avoid that, this project uses Docker to install dependencies inside an Amazon Linux–compatible environment and then packages everything into a deployable ZIP.
+
+---
+
+## 2. Build steps (Commands)
+
+Copy and paste the following command block into your terminal to automatically generate the latest ZIP file.  
+It’s recommended to change the version number (the suffix of the filename) each time you run it.
+
+~~~bash
+# === Config: output filename (change as needed) ===
 OUTPUT_ZIP="deploy_package.zip"
 
-# 1. 既存の一時フォルダを削除
+# 1. Remove existing temp folder
 rm -rf /tmp/xbookmark_build
 
-# 2. 一時作業用ディレクトリを作成して移動
+# 2. Create a temp working directory and move into it
 mkdir -p /tmp/xbookmark_build
 cd /tmp/xbookmark_build
 
-# 3. プロジェクトのソースコードと要件ファイルをコピー
-# 注意: パスはご自身の環境に合わせて調整が必要な場合があります
+# 3. Copy source code and requirements file
+# Note: you may need to adjust the path for your environment
 PROJECT_ROOT="/Users/takakuwasouichirou/Library/Mobile Documents/iCloud~md~obsidian/Documents/X Bookmark"
 cp -r "$PROJECT_ROOT/src" .
 cp "$PROJECT_ROOT/requirements.txt" .
 
-# 4. Dockerコンテナ内でライブラリをインストール
-# AWS Lambda (Python 3.12) と同じ環境を使用
+# 4. Install libraries inside a Docker container
+# Use the same environment as AWS Lambda (Python 3.12)
 docker run --rm --entrypoint /bin/bash \
   -v "$PWD":/var/task \
   public.ecr.aws/lambda/python:3.12 \
   -c "pip install -r requirements.txt -t /var/task --upgrade --no-cache-dir"
 
-# 5. 不要なファイル・フォルダの削除（軽量化）
+# 5. Remove unnecessary files/folders (shrink package size)
 rm -rf *.dist-info *.egg-info __pycache__ boto3* botocore* bin
 find . -name "__pycache__" -type d -exec rm -rf {} +
 
-# 6. Pythonパッケージとして認識させるための初期化ファイル作成
+# 6. Create an init file so Python recognizes it as a package
 touch src/__init__.py
 
-# 7. ZIPファイルを作成
+# 7. Create the ZIP file
 zip -r "$OUTPUT_ZIP" .
 
-# 8. 完成したZIPをプロジェクトルートに移動
+# 8. Move the completed ZIP to the project root
 mv "$OUTPUT_ZIP" "$PROJECT_ROOT/"
 
-# 9. 元の場所に戻り、一時ファイルを削除
+# 9. Return to the original location and clean up temp files
 cd "$PROJECT_ROOT"
 rm -rf /tmp/xbookmark_build
 
-# 10. 完了メッセージ
+# 10. Completion message
 echo "Build Complete: $OUTPUT_ZIP"
 ls -lh "$OUTPUT_ZIP"
-```
+~~~
 
 ---
 
-## 3. デプロイ手順（AWSコンソール）
+## 3. Deployment steps (AWS Console)
 
-ビルドで生成されたZIPファイルを、AWS Lambdaにアップロードします。
+Upload the ZIP file generated in the build step to AWS Lambda.
 
-1.  **AWSマネジメントコンソール** にログインし、**Lambda** のサービス画面を開く。
-2.  対象の関数（例: `XBookmarkSummarizer`）を選択する。
-3.  **「コード (Code)」** タブを開く。
-4.  画面右側の **「アップロード元 (Upload from)」** ボタンをクリックし、**「.zipファイル (.zip file)」** を選択。
-5.  **「アップロード (Upload)」** ボタンを押し、先ほど作成したZIPファイル（例: `deploy_package.zip`）を選択する。
-6.  **「保存 (Save)」** ボタンをクリックする。
-    *   ※ アップロード完了まで数秒〜数十秒かかります。
-    *   ※ 「環境変数のサイズが大きすぎます」等のエラーではなく、単に通信エラーが出る場合はブラウザをリロードして再試行してください。
+1. Log in to the **AWS Management Console** and open **Lambda**.  
+2. Select the target function (e.g., `XBookmarkSummarizer`).  
+3. Open the **Code** tab.  
+4. Click **Upload from** on the right and select **.zip file**.  
+5. Click **Upload**, then choose the ZIP you created (e.g., `deploy_package.zip`).  
+6. Click **Save**.  
+   - Uploading may take a few seconds to tens of seconds.  
+   - If you get a network error (not something like “Environment variable size is too large”), reload the page and try again.
 
 ---
 
-## 4. トラブルシューティング
+## 4. Troubleshooting
 
-### Q1. "Failed to execute 'readAsArrayBuffer'..." というエラーでアップロードできない
-**原因:** ブラウザでファイルを選択した後に、ローカルでファイルを上書き更新した場合、ブラウザが保持しているファイル参照が無効になるため発生します。
+### Q1. I can’t upload and get an error like: “Failed to execute 'readAsArrayBuffer'...”
+**Cause:** If you select a file in the browser and then overwrite/update that file locally, the browser’s file reference becomes invalid.
 
-**対処:** ブラウザのタブをリロード（再読み込み）してから、再度アップロード手順を行ってください。
+**Fix:** Reload the browser tab, then retry the upload process.
 
-### Q2. デプロイ後に "ModuleNotFoundError" が出る
-**原因:** 必要なライブラリがZIPに含まれていない、またはフォルダ構成が間違っている可能性があります。
+### Q2. After deployment, I get “ModuleNotFoundError”
+**Cause:** The required libraries may not be included in the ZIP, or the folder structure may be wrong.
 
-**対処:** 
-- `src` フォルダとライブラリ（`google` フォルダなど）がZIPのルート（一番上の階層）にあるか確認してください。
-- `requirements.txt` に必要なライブラリがすべて記載されているか確認してください。
+**Fix:**
+- Check that the `src` folder and dependency folders (like `google/`) are at the ZIP root (top-level).  
+- Confirm `requirements.txt` includes all required libraries.
 
-### Q3. "Permission denied" エラーが出る
-**原因:** 実行権限の問題です。
+### Q3. I get a “Permission denied” error
+**Cause:** File permission issues.
 
-**対処:** 
-- Dockerを使用している場合、生成されたファイルの所有権がrootになっていることがあります。`chmod -R 755 .` 等で権限を修正するか、再度ビルドコマンドを実行し直してください。
+**Fix:**
+- When using Docker, generated files may be owned by root. Run `chmod -R 755 .` to fix permissions, or rebuild the package.
