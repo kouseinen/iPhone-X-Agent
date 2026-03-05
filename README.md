@@ -1,7 +1,7 @@
 # iPhone X Agent
 
 **iPhone X Agent** is an automated workflow that bridges your iPhone, Discord, and Google Drive using AI.
-Simply copy the text of an X (Twitter) post on your iPhone, run the iOS Shortcut, and this agent will automatically generate a detailed explanation using **Gemini 3 Flash Lite**, save it to Google Drive, and notify you when it's done.
+Simply copy the text of an X (Twitter) post on your iPhone, run the iOS Shortcut, and this agent will automatically generate a detailed explanation using LLM, save it to Google Drive, and notify you when it's done.
 
 ![flow](flow.png)
 
