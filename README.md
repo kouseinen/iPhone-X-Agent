@@ -75,5 +75,3 @@ The system operates as a periodic Lambda function with the following pipeline:
 ## License
 
 [MIT](LICENSE)
-
-test
